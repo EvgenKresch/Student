@@ -15,3 +15,15 @@
     text-align: right;
     display: inline-block;
 }
+
+.form_inline_block{
+    display: inline-block;
+}
+
+.click_icon_for_comment:hover{
+    cursor: pointer;
+}
+
+.click_icon_for_comment{
+    color: #19865C;
+}

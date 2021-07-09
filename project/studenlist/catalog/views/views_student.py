@@ -37,6 +37,9 @@ class StudentDetailView(generic.DetailView, generic.FormView):
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
+        print('-------------------------------')
+        if request.POST['status']=='update':
+            return self.form_valid(self.get_form())
         custom_data = {'comment': request.POST['comment'], 'mentor': str(request.user.id), 'student': self.object.id}
         query_str = urllib.parse.urlencode(custom_data, doseq=False)
         custom_query_dict = QueryDict(query_str)

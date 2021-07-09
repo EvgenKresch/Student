@@ -1,7 +1,13 @@
 {% extends "base_generic.html" %}
 
-{% block content %}
 {% load static %}
+
+{% block jsblock %}
+    <script type="text/javascript" src="{% static 'js/click_icon_for_comment.js' %}" defer></script>
+{% endblock %}
+
+{% block content %}
+
 
     <h3>Студент :</h3>
 <h2>{{ student.student_name }}
@@ -37,8 +43,14 @@
     {% for comment in  student.comment_for_student.all %}
       <h5>
           ({{comment.mentor}})  {{comment}}
-          <a href="{% url 'comment_update' pk=comment.pk %}"><span class="glyphicon glyphicon-pencil"></span></a>
-          <a href="{% url 'comment_delete' pk=comment.pk %}"><span class="glyphicon glyphicon-remove"></span></a>
+            {% if comment.mentor.id == user.profile_of_user.id or user.profile_of_user.is_admin_or_moderator%}
+                <form class="form_inline_block"  action="{% url 'student_detail' student.id %}" method="post">
+                    {% csrf_token %}
+                    <span id="comment_update" class="glyphicon glyphicon-pencil click_icon_for_comment" onclick="click_icon_for_comment(this)"></span>
+                    <span id="comment_delete" class="glyphicon glyphicon-remove click_icon_for_comment" onclick="click_icon_for_comment(this)"></span>
+                </form>
+
+          {% endif %}
       </h5>
     {% endfor %}
     {% if user.is_authenticated %}
@@ -49,3 +61,4 @@
         </form>
     {% endif %}
 {% endblock %}
+

@@ -22,7 +22,6 @@ urlpatterns +=[
     re_path(r'^department_list/(?P<pk>\d+)$', views_student.department_student_list, name='student_department'),
 ]
 urlpatterns += [
-    re_path(r'^student/(?P<pk>\d+)/comment/$', views_student.CommentCreate.as_view(), name='comment_create'),
     re_path(r'^student/(?P<pk>\d+)/comment_delete/$', views_student.CommentDelete.as_view(), name='comment_delete'),
     re_path(r'^student/(?P<pk>\d+)/comment_upd/$', views_student.CommentUpdate.as_view(), name='comment_update'),
 ]
