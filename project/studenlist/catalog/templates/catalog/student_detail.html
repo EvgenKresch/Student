@@ -39,25 +39,30 @@
     {{student.summary}}
     <hr>
     <h3> Комментарии</h3>
-
+    <div class="comments">
     {% for comment in  student.comment_for_student.all %}
-      <h5>
-          ({{comment.mentor}})  {{comment}}
-            {% if comment.mentor.id == user.profile_of_user.id or user.profile_of_user.is_admin_or_moderator%}
-                <form class="form_inline_block"  action="{% url 'student_detail' student.id %}" method="post">
-                    {% csrf_token %}
-                    <span id="comment_update" class="glyphicon glyphicon-pencil click_icon_for_comment" onclick="click_icon_for_comment(this)"></span>
-                    <span id="comment_delete" class="glyphicon glyphicon-remove click_icon_for_comment" onclick="click_icon_for_comment(this)"></span>
-                </form>
+      <div class="comment" id="comment_{{comment.id}}">
+          <div class="comment_author">{{comment.mentor}}</div><div name="comment_text" class="comment_text">  {{comment}}</div>
+          {% if comment.mentor.id == user.profile_of_user.id or user.profile_of_user.is_admin_or_moderator%}
+<!--                <form class="form_inline_block"  action="{% url 'student_detail' student.id %}" method="post">-->
+<!--                    {% csrf_token %}-->
+<!--                    <input type="hidden" name="status" value="">-->
+<!--                    <input type="hidden" name="comment_id" value="{{comment.id}}">-->
+<!--                </form>-->
+            <span name="comment_update" class="glyphicon glyphicon-pencil click_icon_for_comment" onclick="edit_comment('{{comment.id}}')"></span>
+            <span name="comment_delete" class="glyphicon glyphicon-remove click_icon_for_comment" onclick="delete_comment('{{comment.id}}')"></span>
+
 
           {% endif %}
-      </h5>
+      </div>
     {% endfor %}
+    </div>
     {% if user.is_authenticated %}
-        <form  action="{% url 'student_detail' student.id %}" method="post">
+        <form id="form_create_comment" class="form_comment" action="{% url 'student_detail' student.id %}" method="post">
             {% csrf_token %}
+            <input type="hidden" name="status" value="create">
             {{ form.comment }}
-            <button type="submit" class="save btn btn-default">Send</button>
+            <button type="submit" class="save btn btn-default">Отправить</button>
         </form>
     {% endif %}
 {% endblock %}

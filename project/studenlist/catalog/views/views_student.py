@@ -5,7 +5,7 @@ from ..forms import FilterStudentForm, CommentForm, StudentForm
 from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import Http404, QueryDict
+from django.http import Http404, QueryDict, HttpResponse, JsonResponse
 from django.db.models import Q
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.models import User
@@ -37,20 +37,25 @@ class StudentDetailView(generic.DetailView, generic.FormView):
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-        print('-------------------------------')
-        if request.POST['status']=='update':
-            return self.form_valid(self.get_form())
-        custom_data = {'comment': request.POST['comment'], 'mentor': str(request.user.id), 'student': self.object.id}
-        query_str = urllib.parse.urlencode(custom_data, doseq=False)
-        custom_query_dict = QueryDict(query_str)
-        # form = self.get_form()
-        comment_form = CommentForm(data=custom_query_dict)
-        if comment_form.is_valid():
-            new_comment = comment_form.save(commit=False)
-            new_comment.save()
-            return self.form_valid(comment_form)
-        else:
-            return self.form_invalid(comment_form)
+        print(request.POST)
+        form = self.get_form()
+        if request.POST['status'] == 'create':
+            custom_data = {'comment': request.POST['comment'], 'mentor': str(request.user.id), 'student': self.object.id}
+            query_str = urllib.parse.urlencode(custom_data, doseq=False)
+            custom_query_dict = QueryDict(query_str)
+            comment_form = CommentForm(data=custom_query_dict)
+            if comment_form.is_valid():
+                new_comment = comment_form.save(commit=False)
+                new_comment.save()
+                return self.form_valid(comment_form)
+            else:
+                return self.form_invalid(comment_form)
+        if request.POST['status'] == 'update':
+            return HttpResponse("Here's the text of the Web page.")
+        if request.POST['status'] == 'delete':
+            Comment.objects.filter(id=request.POST['comment_id']).delete()
+            return self.form_valid(form)
+        return self.form_valid(form)
 
     def get_success_url(self):
         return self.object.get_absolute_url()
@@ -59,6 +64,7 @@ class StudentDetailView(generic.DetailView, generic.FormView):
         # self.view = StudentDetailView.as_view()
         context = super().get_context_data(**kwargs)
         context['comment_data'] = Comment.objects.filter(student=self.object)
+        # context['comment_data'] = Comment.objects.filter(student=self.object)
         return context
 
     def guide_detail_view(request, pk):
@@ -72,7 +78,37 @@ class StudentDetailView(generic.DetailView, generic.FormView):
             context={'guide': student_id, }
         )
 
+def get_comment(request):
+    id_comment = request.GET.get('id_comment', None)
+    try:
+        comment = Comment.objects.get(pk=id_comment)
+        response = {
+            'object_comment': 'true', 'text': comment.comment, 'mentor': comment.mentor.username,
+            'student': comment.student.student_name
+        }
+    except Comment.DoesNotExist:
+        response = {
+            'object_comment': 'false'
+        }
+    return JsonResponse(response)
 
+
+def save_comment(request):
+    print(request.POST)
+    id_comment = request.GET.get('id_comment', None)
+    text_comment = request.GET.get('text_comment', None)
+    try:
+        comment = Comment.objects.get(pk=id_comment)
+        comment.comment = text_comment
+        comment.save()
+        response = {
+            'saved': 'true'
+        }
+    except Comment.DoesNotExist:
+        response = {
+            'saved': 'false'
+        }
+    return JsonResponse(response)
 
 class StudentCreate(CreateView):
     """Добавление Студента"""

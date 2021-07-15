@@ -1,3 +1,6 @@
+
+@charset "utf-8";
+
 .sidebar-nav {
     margin-top: 20px;
     padding: 0;
@@ -22,8 +25,28 @@
 
 .click_icon_for_comment:hover{
     cursor: pointer;
+    visibility:visible;
 }
 
 .click_icon_for_comment{
     color: #19865C;
+}
+
+.comment_author{
+    display: inline-block;
+}
+
+.comment_author::before{
+    content: "("
+}
+
+.comment_author::after{
+    content: ")\00a0";
+}
+
+.comment_text{
+    display: inline-block;
+}
+.cancel{
+    margin:0 20px;
 }
